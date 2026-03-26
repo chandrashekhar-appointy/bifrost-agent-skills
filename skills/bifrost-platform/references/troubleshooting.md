@@ -2,6 +2,16 @@
 
 Prefer CLI-first diagnosis before escalating to raw API, Kubernetes, or infrastructure debugging.
 
+## Missing `bifrost` Binary
+
+If `bifrost` is not installed, the skill does not make that happen automatically by itself.
+
+First provide or run the documented install path, then continue:
+
+```bash
+npm install -g @chandrashekharchoudha/bifrost-cli
+```
+
 ## Auth Failures
 
 Start with:
@@ -34,6 +44,27 @@ Select auth mode by environment:
 - device flow for headless humans
 - browser login for local desktops
 
+## GitHub App and Private Repo Access
+
+Treat private repo deploy as supported, but verify access carefully.
+
+Check:
+
+```bash
+bifrost github installations --json --non-interactive
+bifrost github repos <installation-id> --json --non-interactive
+```
+
+If the repo is missing from the installation list:
+- it is a GitHub App permission problem, not an app build problem
+- sync the installation after access is granted
+
+```bash
+bifrost github sync <installation-id> --json --non-interactive
+```
+
+If the repo appears in the installation list but clone still fails, classify that separately as a platform/private-clone issue.
+
 ## Monorepo Ambiguity
 
 If multiple services or Dockerfiles could apply, stop and resolve:
@@ -60,12 +91,19 @@ Use:
 
 ```bash
 bifrost build get <build-id> --json --non-interactive
+bifrost build logs <build-id> --json --non-interactive
 bifrost build wait <build-id> --json --non-interactive
 ```
 
 Treat timeout and failure as different cases:
 - failure means the build reached a terminal error
 - timeout means the build did not reach a healthy terminal state in time
+
+For build failures, classify the cause before suggesting a fix:
+- repo/bootstrap failure
+- GitHub permission failure
+- app build failure
+- runtime image or port mismatch
 
 ## Deployment Timeout or Unhealthy Rollout
 
@@ -77,3 +115,4 @@ bifrost deployment wait <deployment-id> --json --non-interactive
 ```
 
 Prefer these commands before reaching for lower-level platform debugging.
+If deployment succeeds, always fetch and return the public URL without waiting for the user to ask.
