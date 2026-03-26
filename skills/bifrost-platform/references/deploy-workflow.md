@@ -114,6 +114,22 @@ bifrost deployment wait <deployment-id> --json --non-interactive
 
 Use `bifrost deploy --wait` when a single command can own the full wait lifecycle.
 
+## Post-Deploy Operations
+
+When service env vars or secrets change, prefer an explicit config apply instead of asking the user to redeploy the image:
+
+```bash
+bifrost service apply-config <service> --project <project> --environment <env> --json --non-interactive
+```
+
+When the runtime needs an operational bounce without rebuilding:
+
+```bash
+bifrost deployment restart <deployment-id> --json --non-interactive
+```
+
+Use restart for operational recovery. Use config apply when config changed and the running Helm release needs to be reconciled.
+
 ## Success Output
 
 After a successful deploy, always report:

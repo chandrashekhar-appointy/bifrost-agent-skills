@@ -116,3 +116,15 @@ bifrost deployment wait <deployment-id> --json --non-interactive
 
 Prefer these commands before reaching for lower-level platform debugging.
 If deployment succeeds, always fetch and return the public URL without waiting for the user to ask.
+
+If the rollout is healthy but the app needs a controlled bounce:
+
+```bash
+bifrost deployment restart <deployment-id> --json --non-interactive
+```
+
+If env vars or secrets were updated and the running release needs to pick them up:
+
+```bash
+bifrost service apply-config <service> --project <project> --environment <env> --json --non-interactive
+```

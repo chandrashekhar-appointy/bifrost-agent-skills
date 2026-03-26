@@ -16,6 +16,13 @@ bifrost project list --json --non-interactive
 
 Use this default for all meaningful workflow commands, including auth checks, init, infra, deploy, build, deployment, and diagnosis commands.
 
+Operational follow-up commands also use the same contract:
+
+```bash
+bifrost service apply-config <service> --project <project> --environment <env> --json --non-interactive
+bifrost deployment restart <deployment-id> --json --non-interactive
+```
+
 ## Output Rules
 
 - Stdout is the parse target.
