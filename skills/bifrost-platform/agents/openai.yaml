@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bifrost Platform"
+  short_description: "Deploy apps and infra with the Bifrost CLI"
+  default_prompt: "Use $bifrost-platform to deploy or troubleshoot with the native bifrost CLI, always preferring --json --non-interactive workflows."
