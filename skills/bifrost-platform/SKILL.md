@@ -10,7 +10,7 @@ Use this skill when the task involves deploying an app with Bifrost, creating or
 ## Core Rules
 
 - Use the native `bifrost` binary directly.
-- If the `bifrost` binary is not installed, stop and provide the install command before continuing. Do not assume the skill can install it automatically.
+- If the `bifrost` binary is not installed, install it with `npm install -g @chandrashekharchoudha/bifrost-cli` before continuing.
 - Append `--json --non-interactive` to every meaningful `bifrost` command used for workflow execution.
 - Treat CLI JSON on stdout as the source of truth. Do not parse human-formatted output when JSON is available.
 - Never invent project IDs, service IDs, environment IDs, deployment IDs, build IDs, or infra IDs when `.bifrost.yaml` or CLI lookup can resolve them.
