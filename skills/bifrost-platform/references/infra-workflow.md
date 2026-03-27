@@ -6,6 +6,8 @@ Use Bifrost infra commands to create shared resources and bind them to services.
 
 - database
 - bucket
+- pubsub
+- redis
 
 ## Infra Intent First
 
@@ -33,6 +35,18 @@ bifrost infra create database <name> --project <project> --environment <env> --j
 bifrost infra create bucket <name> --project <project> --environment <env> --json --non-interactive
 ```
 
+## Create Pub/Sub
+
+```bash
+bifrost infra create pubsub <name> --project <project> --environment <env> --json --non-interactive
+```
+
+## Create Redis
+
+```bash
+bifrost infra create redis <name> --project <project> --environment <env> --json --non-interactive
+```
+
 ## List and Inspect
 
 ```bash
@@ -48,9 +62,21 @@ Binding should be explicit, not assumed.
 bifrost infra bind <resource-id> --service <service> --json --non-interactive
 ```
 
+## Delete Infra
+
+Delete is supported, but only for the user who originally created the infra resource.
+
+Do not attempt delete while a resource is still bound to a service.
+
+```bash
+bifrost infra delete <resource-id> --json --non-interactive
+```
+
 ## Defaults and Expectations
 
 - when infra is project-linked and environment is unspecified, default to `dev`
 - standalone infra may omit project linkage
+- `redis` is a shared platform instance with per-resource logical allocations, not a dedicated Redis server per app
+- `pubsub` creates a shared platform topic resource
 - after binding, verify the returned metadata before moving on to deploy
 - if the user wants both infra and deploy, finish binding first and then run deploy
