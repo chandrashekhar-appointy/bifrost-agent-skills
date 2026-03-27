@@ -79,3 +79,5 @@ Keep the agent thin and procedural:
 - avoid committing agent-local metadata such as `.agents/`, `.claude/`, `.codex/`, editor folders, or raw `.env*` files unless the user explicitly wants them committed
 - be deliberate about committing `.bifrost.yaml`; it is often useful, but it is still a repo-level choice
 - use CLI-native wait commands before escalating to raw API or cluster debugging
+- after a push, check whether a webhook deployment already exists for the same commit before creating a manual deployment
+- if a build succeeds but the deployment fails, stop creating more deployments and switch to diagnosis first

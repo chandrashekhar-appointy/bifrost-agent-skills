@@ -44,6 +44,14 @@ bifrost init --project <project> --service <service> --environment <env> --json 
 bifrost deploy --wait --json --non-interactive
 ```
 
+Before issuing a manual deploy after a push, check whether the same commit already has an active webhook deployment:
+
+```bash
+bifrost deployment latest --project <project> --environment <env> --commit <sha> --source-type webhook --json --non-interactive
+```
+
+If a webhook deployment for that commit is already pending or deploying, wait on it instead of creating a duplicate manual deployment.
+
 ## App Inference Rules
 
 ### Project Type
@@ -113,6 +121,8 @@ bifrost deployment wait <deployment-id> --json --non-interactive
 ```
 
 Use `bifrost deploy --wait` when a single command can own the full wait lifecycle.
+
+If the build succeeds but the deployment fails, stop and diagnose the runtime before creating a new deployment. Do not keep triggering more deployments for the same commit until you know why the existing one failed.
 
 ## Post-Deploy Operations
 

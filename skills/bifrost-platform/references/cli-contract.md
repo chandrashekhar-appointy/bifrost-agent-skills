@@ -21,6 +21,8 @@ Operational follow-up commands also use the same contract:
 ```bash
 bifrost service apply-config <service> --project <project> --environment <env> --json --non-interactive
 bifrost deployment restart <deployment-id> --json --non-interactive
+bifrost deployment list --project <project> --environment <env> --commit <sha> --json --non-interactive
+bifrost deployment latest --project <project> --environment <env> --commit <sha> --source-type webhook --json --non-interactive
 ```
 
 ## Output Rules

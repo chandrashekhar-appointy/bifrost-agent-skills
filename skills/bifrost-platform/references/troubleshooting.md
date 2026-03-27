@@ -65,6 +65,12 @@ bifrost github sync <installation-id> --json --non-interactive
 
 If the repo appears in the installation list but clone still fails, classify that separately as a platform/private-clone issue.
 
+If push automation is enabled, check whether a webhook deployment for the same commit already exists before creating a manual deployment:
+
+```bash
+bifrost deployment latest --project <project> --environment <env> --commit <sha> --source-type webhook --json --non-interactive
+```
+
 ## Monorepo Ambiguity
 
 If multiple services or Dockerfiles could apply, stop and resolve:
@@ -104,6 +110,8 @@ For build failures, classify the cause before suggesting a fix:
 - GitHub permission failure
 - app build failure
 - runtime image or port mismatch
+
+If a build succeeds but deployment fails, stop creating more deployments. Move to deployment/runtime diagnosis first.
 
 ## Deployment Timeout or Unhealthy Rollout
 
