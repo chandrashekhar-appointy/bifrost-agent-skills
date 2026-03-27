@@ -12,6 +12,8 @@ First provide or run the documented install path, then continue:
 npm install -g @chandrashekharchoudha/bifrost-cli
 ```
 
+Use the npm install path for the Bifrost CLI. Do not switch to a Homebrew install path for `bifrost`.
+
 ## Auth Failures
 
 Start with:
