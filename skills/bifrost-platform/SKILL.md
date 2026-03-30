@@ -18,6 +18,11 @@ Use this skill when the task involves deploying an app with Bifrost, creating or
 - Never pass `file://` URLs or local absolute filesystem paths as Bifrost deploy sources.
 - Prefer `git` for repo inspection and existing remotes. Use `gh` only when a new GitHub repo must be created from this machine or when GitHub-specific visibility/permission changes are required.
 - Prefer CLI wait commands such as `bifrost build wait` and `bifrost deployment wait` instead of implementing your own polling loop.
+- Optimize for a single clean deployment pass:
+  - prepare once
+  - push once
+  - wait once
+  - diagnose before retrying
 
 ## Preflight First
 
@@ -27,7 +32,9 @@ Check:
 - whether `.git` exists and whether a remote already exists
 - whether `.bifrost.yaml` already links the repo to a project/service/environment
 - the app shape: framework, Dockerfile, root directory, build context, likely runtime port, likely monolith vs microservice
+- whether the app is a Next.js app, static Vite/nginx app, or a long-running Node service
 - env files and infra signals such as `DATABASE_URL`, Prisma, Redis, pub/sub clients, or `.env.example`
+- whether push-triggered webhook deploys are already active for the repo/service
 - whether the task is clearly a fresh app deploy or a change to an existing linked app
 
 If confidence is high, proceed without asking.
@@ -46,6 +53,7 @@ If key choices are still ambiguous, ask one compact batch of questions instead o
 
 After a successful deployment, always return:
 - deployment status
+- whether routing is still in progress or edge is ready
 - project
 - environment
 - service
@@ -60,6 +68,20 @@ If deploy fails, classify the failure before suggesting next steps:
 - runtime/health failure
 - platform rollout failure
 
+## Single-Run Contract
+
+Default to this sequence:
+
+1. inspect repo and platform context once
+2. ask one compact batch of questions only if a critical decision cannot be inferred
+3. create or update project/service/environment context once
+4. commit and push once
+5. check whether a webhook deployment already exists for the pushed commit
+6. wait on that deployment instead of creating a duplicate manual deployment
+7. if the build fails, fix the build
+8. if the build succeeds but the deployment fails, switch to runtime diagnosis before triggering another deployment
+9. after success, always return the URL and the final status
+
 ## Workflow Map
 
 - For command shape, JSON rules, context resolution, and wait behavior, read `references/cli-contract.md`.
@@ -67,7 +89,12 @@ If deploy fails, classify the failure before suggesting next steps:
 - For `.bifrost.yaml` expectations and when to run `bifrost init`, read `references/repo-context.md`.
 - For local repos, existing remotes, and optional `gh` usage, read `references/git-prep-workflow.md`.
 - For end-to-end deploy execution, including fresh-vs-existing project decisions and post-deploy URL reporting, read `references/deploy-workflow.md`.
+- For Dockerfile decisions and framework-specific container guidance, read `references/dockerfile-guidance.md`.
+- For Next.js deploy expectations, read `references/framework-nextjs.md`.
+- For Vite/static site deploy expectations, read `references/framework-vite-static.md`.
+- For long-running Node service deploy expectations, read `references/framework-node-service.md`.
 - For database and bucket creation or binding, including when to ask whether infra is needed at all, read `references/infra-workflow.md`.
+- For runtime diagnosis after a successful build but failed rollout, read `references/runtime-diagnosis.md`.
 - For auth, repo, infra, build, and rollout failures, read `references/troubleshooting.md`.
 
 ## Operating Stance
@@ -81,3 +108,4 @@ Keep the agent thin and procedural:
 - use CLI-native wait commands before escalating to raw API or cluster debugging
 - after a push, check whether a webhook deployment already exists for the same commit before creating a manual deployment
 - if a build succeeds but the deployment fails, stop creating more deployments and switch to diagnosis first
+- if a deployment is healthy but the public URL is not live yet, report `routing in progress` until edge probes succeed

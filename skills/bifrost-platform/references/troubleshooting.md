@@ -115,6 +115,13 @@ For build failures, classify the cause before suggesting a fix:
 
 If a build succeeds but deployment fails, stop creating more deployments. Move to deployment/runtime diagnosis first.
 
+Framework-specific references can help keep the first fix precise:
+- `dockerfile-guidance.md`
+- `framework-nextjs.md`
+- `framework-vite-static.md`
+- `framework-node-service.md`
+- `runtime-diagnosis.md`
+
 ## Deployment Timeout or Unhealthy Rollout
 
 Use:
@@ -126,6 +133,11 @@ bifrost deployment wait <deployment-id> --json --non-interactive
 
 Prefer these commands before reaching for lower-level platform debugging.
 If deployment succeeds, always fetch and return the public URL without waiting for the user to ask.
+
+If the route exists but the public URL is still returning `502`, `503`, or `fault filter abort`, classify that as:
+- `routing in progress` while edge propagation is converging
+
+Only treat it as `edge ready` after repeated healthy public responses.
 
 If the rollout is healthy but the app needs a controlled bounce:
 

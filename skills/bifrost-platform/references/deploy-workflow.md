@@ -15,6 +15,11 @@ bifrost auth whoami --json --non-interactive
 - check whether a remote already exists
 - check whether `.bifrost.yaml` exists
 - inspect the app shape: framework, Dockerfile, likely port, likely root directory, likely monolith vs microservice
+- choose the matching framework reference before writing or changing Dockerfiles:
+  - Next.js: `framework-nextjs.md`
+  - static Vite/nginx: `framework-vite-static.md`
+  - long-running Node service: `framework-node-service.md`
+- if Dockerfile changes are needed, follow `dockerfile-guidance.md`
 
 3. Decide whether this is an existing linked app or a fresh deploy.
 - existing `.bifrost.yaml` with matching repo: default to existing project/service/environment
@@ -51,6 +56,11 @@ bifrost deployment latest --project <project> --environment <env> --commit <sha>
 ```
 
 If a webhook deployment for that commit is already pending or deploying, wait on it instead of creating a duplicate manual deployment.
+
+This is the default single-run behavior:
+- push once
+- wait on the webhook deployment if it already exists
+- only create a manual deployment when webhook deploy is absent or intentionally not being used
 
 ## App Inference Rules
 
@@ -123,6 +133,8 @@ bifrost deployment wait <deployment-id> --json --non-interactive
 Use `bifrost deploy --wait` when a single command can own the full wait lifecycle.
 
 If the build succeeds but the deployment fails, stop and diagnose the runtime before creating a new deployment. Do not keep triggering more deployments for the same commit until you know why the existing one failed.
+
+Use `runtime-diagnosis.md` for the concrete stop-and-diagnose sequence.
 
 ## Post-Deploy Operations
 
