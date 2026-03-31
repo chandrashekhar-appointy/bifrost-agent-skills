@@ -16,6 +16,8 @@ Prefer `static_site` when the repo is clearly a frontend/static site:
 The CLI still represents this as a service kind internally. Create the service with:
 
 ```bash
+bifrost project create <project> --type static_site --json --non-interactive
+
 bifrost service create <name> \
   --project <project> \
   --kind static_site \
