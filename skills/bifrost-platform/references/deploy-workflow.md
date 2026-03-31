@@ -49,6 +49,12 @@ bifrost init --project <project> --service <service> --environment <env> --json 
 bifrost deploy --wait --json --non-interactive
 ```
 
+For `static_site` services, prefer the static hosting path:
+- create the service with `--kind static_site`
+- do not require a user-visible environment
+- expect a stable CDN URL and an immutable release URL instead of Kubernetes routing objects
+- see `static-site-hosting.md`
+
 Before issuing a manual deploy after a push, check whether the same commit already has an active webhook deployment:
 
 ```bash
@@ -84,6 +90,14 @@ Use evidence from:
 - documented health endpoints
 
 Do not assume port `80` for every app.
+
+### Static-Site Fast Path
+
+If the app is a true static frontend:
+- use `static_site` instead of a container service
+- skip environment creation and `HTTPRoute` assumptions
+- configure install/build/output settings instead of Dockerfile/ports when possible
+- expect publish-to-bucket + CDN verification instead of pod rollout
 
 ### Env and Infra Signals
 

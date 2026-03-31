@@ -92,6 +92,7 @@ Default to this sequence:
 - For Dockerfile decisions and framework-specific container guidance, read `references/dockerfile-guidance.md`.
 - For Next.js deploy expectations, read `references/framework-nextjs.md`.
 - For Vite/static site deploy expectations, read `references/framework-vite-static.md`.
+- For the first-class static-site hosting path, read `references/static-site-hosting.md`.
 - For long-running Node service deploy expectations, read `references/framework-node-service.md`.
 - For database and bucket creation or binding, including when to ask whether infra is needed at all, read `references/infra-workflow.md`.
 - For runtime diagnosis after a successful build but failed rollout, read `references/runtime-diagnosis.md`.

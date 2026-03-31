@@ -58,5 +58,6 @@ bifrost deploy --wait --json --non-interactive
 ## Safe Defaults
 
 - default environment is `dev` unless explicitly set otherwise
+- `static_site` services do not require a user-visible environment when deploying
 - production requires explicit user intent
 - if required context is missing, stop and surface the missing field rather than guessing
