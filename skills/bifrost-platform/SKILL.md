@@ -44,10 +44,19 @@ If key choices are still ambiguous, ask one compact batch of questions instead o
 
 - Fresh repo with no `.bifrost.yaml`: default to a new project and new service.
 - Existing `.bifrost.yaml`: default to the linked project/service unless the user says to relink.
-- Single app repo: default to `monolith`.
+- Static site repo with no server/runtime signals: default to `static_site`.
+- Single long-running app repo: default to `monolith`.
 - Multiple independently deployable apps: use `microservice` only when the repo structure clearly supports it.
 - Existing git remote: reuse it instead of creating a new GitHub repo.
 - New GitHub repo creation: ask once for visibility and owner/name if that cannot be inferred.
+
+### Framework Routing Rules
+
+- Vite static sites published on Bifrost static hosting must use relative or otherwise subpath-safe asset paths. Prefer `base: './'` unless the repo already has a correct static base strategy.
+- Next.js with `output: 'export'` and no server-only or backend/runtime signals should be treated as a `static_site`. For Bifrost v1 path-based hosting, exported apps need an appropriate `basePath` that matches `/s/<project-slug>`.
+- Next.js with `output: 'standalone'` plus dynamic behavior such as server actions, backend routes, auth callbacks, database calls, or other runtime dependencies should be treated as a containerized application, not a static site.
+- If the user selected static hosting but the Next.js repo is configured with `output: 'standalone'` and the app is otherwise static, fix the repo to `output: 'export'` before deploying it as a static site.
+- If the project metadata already exists, prefer `project.type` as the top-level deployment mode and `service.kind` as the runtime behavior check.
 
 ## Final Output Contract
 
