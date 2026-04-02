@@ -77,6 +77,10 @@ bifrost infra delete <resource-id> --json --non-interactive
 - when infra is project-linked and environment is unspecified, default to `dev`
 - standalone infra may omit project linkage
 - `redis` is a shared platform instance with per-resource logical allocations, not a dedicated Redis server per app
+- shared Redis currently uses one platform auth secret plus a unique `REDIS_KEY_PREFIX` per resource for logical isolation
+- backend must be configured with `SHARED_REDIS_INSTANCE`, `SHARED_REDIS_HOST`, `SHARED_REDIS_PORT`, `SHARED_REDIS_PASSWORD`, `SHARED_REDIS_DATABASE`, and `SHARED_REDIS_SCHEME` before Redis create can succeed
 - `pubsub` creates a shared platform topic resource
+- Pub/Sub bind now creates a real GCP Pub/Sub subscription per service/environment binding and exposes both `PUBSUB_SUBSCRIPTION` and `PUBSUB_SUBSCRIPTION_PATH`
+- cluster rollout for Pub/Sub requires the `XPubSub` XRD/composition plus RBAC allowing the workflow executor to manage `xpubsubs` and managed `subscriptions.pubsub.gcp.m.upbound.io`
 - after binding, verify the returned metadata before moving on to deploy
 - if the user wants both infra and deploy, finish binding first and then run deploy
