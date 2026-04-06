@@ -36,6 +36,7 @@ Check:
 - env files and infra signals such as `DATABASE_URL`, Prisma, Redis, pub/sub clients, or `.env.example`
 - whether push-triggered webhook deploys are already active for the repo/service
 - whether the task is clearly a fresh app deploy or a change to an existing linked app
+- for private GitHub repos or freshly created repos, whether the repo is already covered by a GitHub App installation that Bifrost can use for short-lived clone tokens
 
 If confidence is high, proceed without asking.
 If key choices are still ambiguous, ask one compact batch of questions instead of drip-feeding prompts across the workflow.
@@ -45,10 +46,13 @@ If key choices are still ambiguous, ask one compact batch of questions instead o
 - Fresh repo with no `.bifrost.yaml`: default to a new project and new service.
 - Existing `.bifrost.yaml`: default to the linked project/service unless the user says to relink.
 - Static site repo with no server/runtime signals: default to `static_site`.
+- If the user already has a prebuilt container image or explicitly wants to skip builds, prefer an image-backed container service with `source_type=image` over inventing a repository build flow.
 - Single long-running app repo: default to `monolith`.
 - Multiple independently deployable apps: use `microservice` only when the repo structure clearly supports it.
 - Existing git remote: reuse it instead of creating a new GitHub repo.
 - New GitHub repo creation: ask once for visibility and owner/name if that cannot be inferred.
+- Templates are an abstraction over ordinary Bifrost project + service creation. Treat template launches as image-backed service deployments with optional infra and runtime env/secrets layered on top.
+- For repository-backed deploys on private GitHub repos, assume Bifrost should clone with a short-lived GitHub App installation token. If that token path is not available for the repo, stop and fix GitHub App access before blaming the app build.
 
 ### Framework Routing Rules
 
@@ -85,11 +89,14 @@ Default to this sequence:
 2. ask one compact batch of questions only if a critical decision cannot be inferred
 3. create or update project/service/environment context once
 4. commit and push once
-5. check whether a webhook deployment already exists for the pushed commit
-6. wait on that deployment instead of creating a duplicate manual deployment
-7. if the build fails, fix the build
-8. if the build succeeds but the deployment fails, switch to runtime diagnosis before triggering another deployment
-9. after success, always return the URL and the final status
+5. if a new private GitHub repo was created or selected, verify that the repo is covered by the user’s GitHub App installation before deploying
+6. if the GitHub App is not installed at all, tell the user to install it first
+7. if the GitHub App is installed for selected repositories only and the new repo is missing, tell the user to add that repo to the installation and then sync it
+8. check whether a webhook deployment already exists for the pushed commit
+9. wait on that deployment instead of creating a duplicate manual deployment
+10. if the build fails, fix the build
+11. if the build succeeds but the deployment fails, switch to runtime diagnosis before triggering another deployment
+12. after success, always return the URL and the final status
 
 ## Workflow Map
 
@@ -102,6 +109,7 @@ Default to this sequence:
 - For Next.js deploy expectations, read `references/framework-nextjs.md`.
 - For Vite/static site deploy expectations, read `references/framework-vite-static.md`.
 - For the first-class static-site hosting path, read `references/static-site-hosting.md`.
+- For direct image-backed deploys and image-backed templates, read `references/image-and-template-deploy.md`.
 - For long-running Node service deploy expectations, read `references/framework-node-service.md`.
 - For database and bucket creation or binding, including when to ask whether infra is needed at all, read `references/infra-workflow.md`.
 - For runtime diagnosis after a successful build but failed rollout, read `references/runtime-diagnosis.md`.

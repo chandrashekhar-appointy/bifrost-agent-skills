@@ -37,7 +37,27 @@ Examples:
 
 1. Ensure the repository has a valid remote. If not, follow `git-prep-workflow.md`.
 2. Ensure the code intended for deploy is committed and pushed.
-3. Ensure `.bifrost.yaml` exists and matches the intended project/service/environment.
+3. If the repo is private and repository-backed, verify GitHub App access before deploy.
+
+Use:
+
+```bash
+bifrost github installations --json --non-interactive
+bifrost github repos <installation-id> --json --non-interactive
+```
+
+For a freshly created repo:
+- if no installation exists, tell the user to install the GitHub App first
+- if an installation exists but the repo is missing, tell the user to add the repo to that installation when they use selected-repository mode
+- after access changes, run:
+
+```bash
+bifrost github sync <installation-id> --json --non-interactive
+```
+
+Do this before deploy, because private repository builds depend on Bifrost resolving the repo to a GitHub App installation and minting a short-lived installation token for clone access.
+
+4. Ensure `.bifrost.yaml` exists and matches the intended project/service/environment.
 
 ```bash
 bifrost init --project <project> --service <service> --environment <env> --json --non-interactive
@@ -63,6 +83,18 @@ bifrost deployment latest --project <project> --environment <env> --commit <sha>
 
 If a webhook deployment for that commit is already pending or deploying, wait on it instead of creating a duplicate manual deployment.
 
+### Private Repo Guardrail
+
+If the repo is private, do not treat clone failures as generic build failures until you verify GitHub App coverage for that exact repo.
+
+The healthy expected path is:
+- backend resolves repo -> GitHub App installation
+- orchestrator passes `installation-id` into the workflow
+- workflow requests a short-lived installation token from the backend
+- workflow clones with that token
+
+If that repo-to-installation mapping is missing, the workflow falls back to anonymous clone and private repo builds will fail even though the build pod itself started correctly.
+
 This is the default single-run behavior:
 - push once
 - wait on the webhook deployment if it already exists
@@ -73,10 +105,12 @@ This is the default single-run behavior:
 ### Project Type
 
 Use valid project types only:
+- `static_site`
 - `monolith`
 - `microservice`
 
 Heuristic:
+- pure static frontend with no runtime process: `static_site`
 - single app at repo root or one deployable service: `monolith`
 - clearly separate deployable services or multi-app layout: `microservice`
 
@@ -98,6 +132,34 @@ If the app is a true static frontend:
 - skip environment creation and `HTTPRoute` assumptions
 - configure install/build/output settings instead of Dockerfile/ports when possible
 - expect publish-to-bucket + CDN verification instead of pod rollout
+
+### Image-Backed Fast Path
+
+If the user already has a prebuilt image or wants to skip builds:
+- use a container service with `source_type=image`
+- do **not** invent a GitHub/Kaniko build step
+- generate the managed upload target with:
+
+```bash
+bifrost service image-upload <service> --project <project> --image-name <image-name> --image-tag <tag> --json --non-interactive
+```
+
+- push to the exact managed URI Bifrost returns
+- then deploy through the normal deployment flow
+
+Example create flow:
+
+```bash
+bifrost service create <name> \
+  --project <project> \
+  --source-type image \
+  --image-uri us-central1-docker.pkg.dev/<gcp-project>/platform-shared/<prefix>-<image-name>:<tag> \
+  --image-repository us-central1-docker.pkg.dev/<gcp-project>/platform-shared/<prefix>-<image-name> \
+  --image-tag <tag> \
+  --json --non-interactive
+```
+
+The generated upload instructions should use the Bifrost-managed Artifact Registry and a `docker buildx build --platform linux/amd64 ... --push .` command.
 
 ### Env and Infra Signals
 
@@ -165,6 +227,11 @@ bifrost deployment restart <deployment-id> --json --non-interactive
 ```
 
 Use restart for operational recovery. Use config apply when config changed and the running Helm release needs to be reconciled.
+
+For image-backed services in particular:
+- use `set-env` / `set-secrets` to update the stored runtime config
+- then run `bifrost service apply-config ...`
+- only use `deployment restart` when the release already has the right values and needs an operational bounce
 
 ## Success Output
 

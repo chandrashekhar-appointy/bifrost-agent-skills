@@ -19,6 +19,8 @@ Use this default for all meaningful workflow commands, including auth checks, in
 Operational follow-up commands also use the same contract:
 
 ```bash
+bifrost template launch <template-id> --project-name <project> --json --non-interactive
+bifrost service image-upload <service> --project <project> --image-name <image-name> --image-tag <tag> --json --non-interactive
 bifrost service apply-config <service> --project <project> --environment <env> --json --non-interactive
 bifrost deployment restart <deployment-id> --json --non-interactive
 bifrost deployment list --project <project> --environment <env> --commit <sha> --json --non-interactive
@@ -59,5 +61,6 @@ bifrost deploy --wait --json --non-interactive
 
 - default environment is `dev` unless explicitly set otherwise
 - `static_site` services do not require a user-visible environment when deploying
+- image-backed services still use normal project/service/environment context; they skip builds, not runtime configuration
 - production requires explicit user intent
 - if required context is missing, stop and surface the missing field rather than guessing

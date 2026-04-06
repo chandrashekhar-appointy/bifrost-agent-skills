@@ -59,6 +59,8 @@ bifrost github repos <installation-id> --json --non-interactive
 
 If the repo is missing from the installation list:
 - it is a GitHub App permission problem, not an app build problem
+- if the user chose selected-repository installation mode, tell them to add the repo to the GitHub App installation
+- if no installation exists at all, tell them to install the GitHub App first
 - sync the installation after access is granted
 
 ```bash
@@ -66,6 +68,19 @@ bifrost github sync <installation-id> --json --non-interactive
 ```
 
 If the repo appears in the installation list but clone still fails, classify that separately as a platform/private-clone issue.
+
+For repository-backed builds, remember the intended mechanism:
+- backend resolves the repo to a GitHub App installation
+- backend generates a short-lived installation token through the internal GitHub endpoint
+- build/static-publish workflow uses that token for clone
+
+If workflow logs say:
+
+```text
+No GitHub installation configured for <repo>; falling back to anonymous git clone
+```
+
+then the token path did not engage for that repo. Treat that as a repo-to-installation mapping problem first.
 
 If push automation is enabled, check whether a webhook deployment for the same commit already exists before creating a manual deployment:
 
@@ -112,6 +127,19 @@ For build failures, classify the cause before suggesting a fix:
 - GitHub permission failure
 - app build failure
 - runtime image or port mismatch
+
+If deployment/build state says `building` but the user believes “no build pod started”, verify the workflow before agreeing:
+
+```bash
+bifrost build get <build-id> --json --non-interactive
+kubectl -n bifrost get wf <argo-workflow-ref>
+kubectl -n bifrost logs <argo-workflow-pod> -c main --tail=200
+```
+
+This often separates:
+- pod scheduling delay
+- private repo clone/auth failure
+- real app build failure
 
 If a build succeeds but deployment fails, stop creating more deployments. Move to deployment/runtime diagnosis first.
 
