@@ -61,6 +61,13 @@ If the repo is missing from the installation list:
 - it is a GitHub App permission problem, not an app build problem
 - if the user chose selected-repository installation mode, tell them to add the repo to the GitHub App installation
 - if no installation exists at all, tell them to install the GitHub App first
+- when you know the GitHub installation ID, prefer giving the user the direct settings URL:
+
+```text
+https://github.com/settings/installations/<github-installation-id>
+```
+
+- do not attempt to patch installation repository access through raw `gh api` calls as the default skill behavior
 - sync the installation after access is granted
 
 ```bash

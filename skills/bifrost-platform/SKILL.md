@@ -53,6 +53,7 @@ If key choices are still ambiguous, ask one compact batch of questions instead o
 - New GitHub repo creation: ask once for visibility and owner/name if that cannot be inferred.
 - Templates are an abstraction over ordinary Bifrost project + service creation. Treat template launches as image-backed service deployments with optional infra and runtime env/secrets layered on top.
 - For repository-backed deploys on private GitHub repos, assume Bifrost should clone with a short-lived GitHub App installation token. If that token path is not available for the repo, stop and fix GitHub App access before blaming the app build.
+- If a private repo is missing from a selected-repositories GitHub App installation, do not try to silently mutate installation access yourself. Give the user the installation settings URL and tell them to add the repo there.
 
 ### Framework Routing Rules
 

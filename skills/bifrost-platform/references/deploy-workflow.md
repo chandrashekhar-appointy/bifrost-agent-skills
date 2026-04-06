@@ -49,6 +49,13 @@ bifrost github repos <installation-id> --json --non-interactive
 For a freshly created repo:
 - if no installation exists, tell the user to install the GitHub App first
 - if an installation exists but the repo is missing, tell the user to add the repo to that installation when they use selected-repository mode
+- prefer giving the user the exact installation settings URL:
+
+```text
+https://github.com/settings/installations/<github-installation-id>
+```
+
+- do not try to auto-add the repo through ad hoc GitHub API mutation from the skill path
 - after access changes, run:
 
 ```bash
