@@ -72,6 +72,42 @@ Do not attempt delete while a resource is still bound to a service.
 bifrost infra delete <resource-id> --json --non-interactive
 ```
 
+## Grant Human Access
+
+For identity-backed resources (`bucket` and `pubsub`), an allowed human email can receive direct IAM access.
+
+```bash
+bifrost infra access grant-human <resource-id> --email <allowed-email> --json --non-interactive
+```
+
+Decision rule:
+- only do this for emails allowed by backend policy
+- the target email must also belong to an existing Bifrost user
+- if the target already has direct bucket/pubsub IAM outside Bifrost, stop and do not manage it through Bifrost
+- prefer Workload Identity for Bifrost-hosted apps; use human grants for operator access
+
+## Generate External JSON Key
+
+For external apps that are not deployed on Bifrost, generate a dedicated service-account JSON key and write it locally.
+
+```bash
+bifrost infra access external-key <resource-id> --email <allowed-email> --output ./infra-key.json --json --non-interactive
+```
+
+Notes:
+- this is only for `bucket` and `pubsub`
+- the backend returns the JSON key once; treat it as sensitive and rotate/revoke when no longer needed
+- cleanup is scoped to Bifrost-managed external service accounts only; it must not touch unrelated pre-existing IAM
+
+## Revoke Access
+
+```bash
+bifrost infra access revoke <resource-id> <grant-id> --json --non-interactive
+```
+
+Use `bifrost infra get <resource-id>` first to inspect `access_grants` and pick the right `grant-id`.
+
+
 ## Defaults and Expectations
 
 - when infra is project-linked and environment is unspecified, default to `dev`
@@ -80,6 +116,9 @@ bifrost infra delete <resource-id> --json --non-interactive
 - shared Redis currently uses one platform auth secret plus a unique `REDIS_KEY_PREFIX` per resource for logical isolation
 - backend must be configured with `SHARED_REDIS_INSTANCE`, `SHARED_REDIS_HOST`, `SHARED_REDIS_PORT`, `SHARED_REDIS_PASSWORD`, `SHARED_REDIS_DATABASE`, and `SHARED_REDIS_SCHEME` before Redis create can succeed
 - `pubsub` creates a shared platform topic resource
+- `bucket` and `pubsub` are identity-backed resources: bind now creates or reuses a runtime Kubernetes service account plus a matching GCP service account, adds Workload Identity, and grants resource-scoped IAM
+- runtime KSA naming: `bifrost-rt-<environment-name>-<service-name>`
+- runtime GSA naming: `bifrost-rt-<environment-name>-<service-name>@<project>.iam.gserviceaccount.com`
 - Pub/Sub bind now creates a real GCP Pub/Sub subscription per service/environment binding and exposes both `PUBSUB_SUBSCRIPTION` and `PUBSUB_SUBSCRIPTION_PATH`
 - cluster rollout for Pub/Sub requires the `XPubSub` XRD/composition plus RBAC allowing the workflow executor to manage `xpubsubs` and managed `subscriptions.pubsub.gcp.m.upbound.io`
 - after binding, verify the returned metadata before moving on to deploy

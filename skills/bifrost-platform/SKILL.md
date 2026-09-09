@@ -112,7 +112,7 @@ Default to this sequence:
 - For the first-class static-site hosting path, read `references/static-site-hosting.md`.
 - For direct image-backed deploys and image-backed templates, read `references/image-and-template-deploy.md`.
 - For long-running Node service deploy expectations, read `references/framework-node-service.md`.
-- For database and bucket creation or binding, including when to ask whether infra is needed at all, read `references/infra-workflow.md`.
+- For database, bucket, pubsub, and redis creation/binding, plus human IAM grants and external JSON-key access for identity-backed infra, read `references/infra-workflow.md`.
 - For runtime diagnosis after a successful build but failed rollout, read `references/runtime-diagnosis.md`.
 - For auth, repo, infra, build, and rollout failures, read `references/troubleshooting.md`.
 
