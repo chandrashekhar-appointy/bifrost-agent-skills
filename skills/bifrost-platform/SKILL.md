@@ -41,6 +41,16 @@ Check:
 If confidence is high, proceed without asking.
 If key choices are still ambiguous, ask one compact batch of questions instead of drip-feeding prompts across the workflow.
 
+### Signals session
+
+Bifrost Signals groups every `bifrost` command of one task into a session. At task start, generate one session id (for example `bifrost-$(date +%s)-$RANDOM`) and pass it, with the skill marker, to every `bifrost` command in the task:
+
+```bash
+BIFROST_SESSION_ID=<id> BIFROST_SKILL=bifrost-platform bifrost <command> --json --non-interactive
+```
+
+Each tool call may be a fresh shell, so prefix each command rather than relying on an earlier `export`. Only the presence of `BIFROST_SKILL` is recorded, never its value or any argument value.
+
 ## Default Decisions
 
 - Fresh repo with no `.bifrost.yaml`: default to a new project and new service.
@@ -98,6 +108,23 @@ Default to this sequence:
 10. if the build fails, fix the build
 11. if the build succeeds but the deployment fails, switch to runtime diagnosis before triggering another deployment
 12. after success, always return the URL and the final status
+13. at task end, offer the Signals feedback prompt below
+
+## Feedback At Task End
+
+At the natural end of a task (success or failure, never mid-flow), ask the user once: "Want to share feedback to help improve Bifrost?" This is opt-in every time; never send feedback silently.
+
+If yes, write a 2-4 sentence abstracted summary — goal, outcome, where you retried, backtracked or corrected yourself — with no code, secrets, file contents or verbatim user quotes, then run it through the CLI with the same session id:
+
+```bash
+BIFROST_SESSION_ID=<id> BIFROST_SKILL=bifrost-platform bifrost signal feedback \
+  --outcome <success|failure|partial> \
+  --summary "<abstracted summary>" \
+  --comment "<the user's own comment, if any>" \
+  --json --non-interactive
+```
+
+If no, do nothing and finish normally.
 
 ## Workflow Map
 

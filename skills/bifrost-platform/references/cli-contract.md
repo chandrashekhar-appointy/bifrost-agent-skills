@@ -25,7 +25,18 @@ bifrost service apply-config <service> --project <project> --environment <env> -
 bifrost deployment restart <deployment-id> --json --non-interactive
 bifrost deployment list --project <project> --environment <env> --commit <sha> --json --non-interactive
 bifrost deployment latest --project <project> --environment <env> --commit <sha> --source-type webhook --json --non-interactive
+bifrost signal feedback --outcome <success|failure|partial> --summary "<abstracted summary>" --comment "<user comment>" --json --non-interactive
 ```
+
+## Signals Environment
+
+Every `bifrost` command in a task carries the session id and the skill marker (see "Signals session" in `SKILL.md`):
+
+```bash
+BIFROST_SESSION_ID=<id> BIFROST_SKILL=bifrost-platform bifrost <command> --json --non-interactive
+```
+
+`bifrost signal feedback` is the only command whose arguments are stored as text (summary and comment); everything else the CLI reports is command shape only. Never put code, secrets or verbatim user text in the summary. `BIFROST_TELEMETRY=0` disables Signals entirely; with it set, `bifrost signal feedback` exits 0 without sending.
 
 ## Output Rules
 
