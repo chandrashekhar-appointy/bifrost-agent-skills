@@ -23,8 +23,15 @@ bifrost deployment wait <deployment-id> --json --non-interactive
 bifrost build get <build-id> --json --non-interactive
 ```
 
-3. if rollout still fails, move to platform/runtime evidence:
-- pod logs
+3. if rollout still fails, read the service's runtime logs. They cover every
+   replica, including pods that crashed and restarted, and are kept for 3 days:
+
+```bash
+bifrost logs <service> --env <env> --since 15m --tail 200 --json --non-interactive
+bifrost logs <service> --env <env> --since 15m --grep ERROR --json --non-interactive
+```
+
+   then the rest of the platform/runtime evidence:
 - deployment describe
 - service port mapping
 - route status

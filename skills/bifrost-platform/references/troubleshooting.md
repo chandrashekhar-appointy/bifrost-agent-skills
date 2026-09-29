@@ -125,6 +125,14 @@ bifrost build logs <build-id> --json --non-interactive
 bifrost build wait <build-id> --json --non-interactive
 ```
 
+Build logs are kept for 30 days, even after the build's pods are gone. To
+watch a running build instead of polling, follow it. It prints the log so far,
+then new lines, and exits when the build finishes (non-zero if it failed):
+
+```bash
+bifrost build logs <build-id> --follow --non-interactive
+```
+
 Treat timeout and failure as different cases:
 - failure means the build reached a terminal error
 - timeout means the build did not reach a healthy terminal state in time
@@ -139,9 +147,14 @@ If deployment/build state says `building` but the user believes “no build pod 
 
 ```bash
 bifrost build get <build-id> --json --non-interactive
-kubectl -n bifrost get wf <argo-workflow-ref>
-kubectl -n bifrost logs <argo-workflow-pod> -c main --tail=200
+bifrost build logs <build-id> --follow --non-interactive
 ```
+
+How to read the result:
+- No output yet while the status is `in_progress`: the build pod hasn't
+  started, or is still cloning.
+- `git-clone` lines followed by an error: a clone or auth problem.
+- Kaniko lines followed by an error: the app build itself failed.
 
 This often separates:
 - pod scheduling delay
