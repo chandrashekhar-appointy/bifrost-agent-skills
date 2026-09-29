@@ -51,7 +51,7 @@ then fix runtime write paths before redeploying.
 If the build succeeds but rollout fails:
 - do not write another Dockerfile immediately
 - inspect:
-  - container logs
+  - container logs: `bifrost logs <service> --env <env> --since 15m --json --non-interactive`
   - deployment describe
   - service port mapping
   - route status

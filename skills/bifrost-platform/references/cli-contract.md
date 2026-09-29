@@ -68,6 +68,16 @@ bifrost deployment wait <deployment-id> --json --non-interactive
 bifrost deploy --wait --json --non-interactive
 ```
 
+Logs:
+
+- `bifrost build logs <build-id> --follow` ends by itself when the build
+  finishes, so it is safe in a task.
+- `bifrost logs <service> --follow` never ends on its own: it follows a
+  running service until interrupted. In agent runs, read a bounded window
+  instead: `bifrost logs <service> --env <env> --since 15m --tail 200 --json`.
+- With `--json`, followed logs are NDJSON (one JSON object per log line).
+  Status messages go to stderr.
+
 ## Safe Defaults
 
 - default environment is `dev` unless explicitly set otherwise

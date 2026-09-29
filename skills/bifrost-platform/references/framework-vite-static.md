@@ -50,5 +50,5 @@ If the repo is otherwise a good static-site candidate but `vite.config.*` is mis
 
 - prefer the shared-bucket/CDN static hosting path first; see `static-site-hosting.md`
 - if the app is going to Bifrost static hosting, make the Vite build subpath-safe before deploying
-- after the first successful build + failed rollout, inspect pod logs immediately
+- after the first successful build + failed rollout, inspect runtime logs immediately: `bifrost logs <service> --env <env> --since 15m --json --non-interactive`
 - do not keep creating new deployments until the runtime crash cause is identified
