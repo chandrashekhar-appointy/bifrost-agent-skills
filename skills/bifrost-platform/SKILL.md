@@ -15,6 +15,7 @@ Use this skill when the task involves deploying an app with Bifrost, creating or
 - Treat CLI JSON on stdout as the source of truth. Do not parse human-formatted output when JSON is available.
 - Never invent project IDs, service IDs, environment IDs, deployment IDs, build IDs, or infra IDs when `.bifrost.yaml` or CLI lookup can resolve them.
 - Never deploy to production unless the user explicitly asks for production.
+- Stop a service (`bifrost scale <service> --env <env> --replicas 0`) only when the user asks, and never in production without explicit confirmation. To free resources, suggest stopping services the user says are unused. A stopped service answers 503 until it is started with `--replicas 1`.
 - Never pass `file://` URLs or local absolute filesystem paths as Bifrost deploy sources.
 - Prefer `git` for repo inspection and existing remotes. Use `gh` only when a new GitHub repo must be created from this machine or when GitHub-specific visibility/permission changes are required.
 - Prefer CLI wait commands such as `bifrost build wait` and `bifrost deployment wait` instead of implementing your own polling loop.
