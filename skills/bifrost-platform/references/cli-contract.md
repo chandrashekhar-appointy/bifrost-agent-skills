@@ -78,6 +78,20 @@ Logs:
 - With `--json`, followed logs are NDJSON (one JSON object per log line).
   Status messages go to stderr.
 
+Stop and start a service:
+
+- `bifrost scale <service> --json --non-interactive` reads the service's
+  state in every environment (`running`, `starting`, `stopped`,
+  `not_deployed`, `unknown`) and changes nothing.
+- `bifrost scale <service> --env <env> --replicas 0 --json --non-interactive`
+  stops it: its pods are removed and its URL answers 503. It stays stopped
+  through pushes and redeploys.
+- `--replicas 1` starts it again at its configured replica count.
+- Always pass `--replicas` in agent runs; without it, a terminal session
+  prompts.
+- Only container services can be stopped (not static sites or cron jobs).
+  `not_deployed` means there is nothing to stop in that environment yet.
+
 ## Safe Defaults
 
 - default environment is `dev` unless explicitly set otherwise

@@ -10,6 +10,17 @@ Once a build for the target commit has succeeded:
 
 ## Diagnostic Order
 
+0. whether the service is stopped. A stopped service (scaled to 0) has no
+   pods, so its URL answers 503 and it has no new logs; that is not a failure.
+
+```bash
+bifrost scale <service> --json --non-interactive
+```
+
+   If the environment's `state` is `stopped`, tell the user. Start it before
+   debugging only if they want it running:
+   `bifrost scale <service> --env <env> --replicas 1 --json --non-interactive`.
+
 1. deployment status
 
 ```bash
@@ -38,6 +49,8 @@ bifrost logs <service> --env <env> --since 15m --grep ERROR --json --non-interac
 
 ## Classification Rules
 
+- `bifrost scale` shows `stopped`:
+  - stopped by the owner, not a failure; start it if the user wants it running
 - build succeeded + pod crashlooping:
   - runtime/container problem
 - build succeeded + pods healthy + no route:

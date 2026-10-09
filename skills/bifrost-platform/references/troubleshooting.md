@@ -182,7 +182,13 @@ bifrost deployment wait <deployment-id> --json --non-interactive
 Prefer these commands before reaching for lower-level platform debugging.
 If deployment succeeds, always fetch and return the public URL without waiting for the user to ask.
 
-If the route exists but the public URL is still returning `502`, `503`, or `fault filter abort`, classify that as:
+If the route exists but the public URL is still returning `502`, `503`, or `fault filter abort`, first check whether the service was stopped (scaled to 0) in that environment:
+
+```bash
+bifrost scale <service> --json --non-interactive
+```
+
+If that environment's `state` is `stopped`, the 503 is expected: tell the user, and start it only if they want it running (`bifrost scale <service> --env <env> --replicas 1 --json --non-interactive`). Otherwise classify it as:
 - `routing in progress` while edge propagation is converging
 
 Only treat it as `edge ready` after repeated healthy public responses.
